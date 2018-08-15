@@ -1,17 +1,36 @@
 package br.com.caelum.leilao.dominio;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 public class Avaliador {
 	
-	private double maiorValor = Double.NEGATIVE_INFINITY;
-	private double menorValor = Double.POSITIVE_INFINITY;
+	private double maiorDeTodos = Double.NEGATIVE_INFINITY;
+	private double menorDeTodos = Double.POSITIVE_INFINITY;
 	private double valorTotal = 0;
+	private List<Lance> maiores;
 
 	public void avalia(Leilao leilao) {
 		for(Lance lance : leilao.getLances()) {
-			if(lance.getValor() > maiorValor)maiorValor = lance.getValor();
-			if(lance.getValor() < menorValor)menorValor = lance.getValor();
+			if(lance.getValor() > maiorDeTodos)maiorDeTodos = lance.getValor();
+			if(lance.getValor() < menorDeTodos)menorDeTodos = lance.getValor();
 		}
+		pegaOsMaioresNo(leilao);
 	}
+	
+	private void pegaOsMaioresNo(Leilao leilao) {
+        maiores = new ArrayList<Lance>(leilao.getLances());
+        Collections.sort(maiores, new Comparator<Lance>() {
+            public int compare(Lance o1, Lance o2) {
+                if(o1.getValor() < o2.getValor()) return 1;
+                if(o1.getValor() > o2.getValor()) return -1;
+                return 0;
+            }
+        });
+        maiores = maiores.subList(0, maiores.size() > 3 ? 3 : maiores.size());
+    }
 	
 	public double getValorMedio(Leilao leilao) {
 		for(Lance lance : leilao.getLances()) {
@@ -20,12 +39,16 @@ public class Avaliador {
 		return valorTotal / leilao.getLances().size();
 	}
 	
-	public double getMaiorValor() {
-		return maiorValor;
-	}
+	public List<Lance> getTresMaiores() {
+        return this.maiores;
+    }
 	
-	public double getMenorValor() {
-		return menorValor;
-	}
+	public double getMaiorLance() {
+        return maiorDeTodos;
+    }
+
+    public double getMenorLance() {
+        return menorDeTodos;
+    }
 
 }
