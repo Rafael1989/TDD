@@ -2,55 +2,72 @@ package br.com.caelum.leilao.dominio;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class AvaliadorTest {
 	
+	private Avaliador avaliador;
+	private Usuario joao;
+	private Usuario jose;
+	private Usuario maria;
+
+	@Before
+	public void setUp() {
+		this.avaliador = new Avaliador();
+		this.joao = new Usuario("João");
+		this.jose = new Usuario("José");
+		this.maria = new Usuario("Maria");
+		System.out.println("início");
+	}
+	
+	@After
+	public void finaliza() {
+		System.out.println("fim");
+	}
+	
 	@Test
 	public void validaAvaliacaoDeLeilaoOrdemCrescente() {
-		Leilao leilao = new Leilao("Uno preto");
-		Usuario usuario = new Usuario("João");
-		Lance lance3 = new Lance(new Usuario("Manuel"), 200);
-		Lance lance2 = new Lance(new Usuario("José"), 300);
-		Lance lance = new Lance(usuario, 400);
-		leilao.propoe(lance3);
-		leilao.propoe(lance2);
-		leilao.propoe(lance);
 		
-		Avaliador avaliador = new Avaliador();
+		Leilao leilao = new CriadorDeLeilao()
+				.para("Playstation")
+				.lance(joao, 250)
+				.lance(jose, 300)
+				.lance(maria, 400)
+				.constroi();
+		
 		avaliador.avalia(leilao);
 		
 		assertEquals(400, avaliador.getMaiorLance(),0.00001);
-		assertEquals(200, avaliador.getMenorLance(),0.00001);
+		assertEquals(250, avaliador.getMenorLance(),0.00001);
 	}
 	
 	@Test
 	public void validaValorMedio() {
 		Leilao leilao = new Leilao("Uno preto");
-		Usuario usuario = new Usuario("João");
-		Lance lance = new Lance(usuario, 400);
-		Lance lance2 = new Lance(new Usuario("José"), 300);
-		Lance lance3 = new Lance(new Usuario("Manuel"), 200);
+		Lance lance = new Lance(joao, 400);
+		Lance lance2 = new Lance(jose, 300);
+		Lance lance3 = new Lance(maria, 200);
 		leilao.propoe(lance);
 		leilao.propoe(lance2);
 		leilao.propoe(lance3);
 		
-		Avaliador avaliador = new Avaliador();
 		
 		assertEquals(300, avaliador.getValorMedio(leilao),0.00001);
 	}
 	
 	@Test
 	public void validaAvaliacaoComUmLance() {
-		Leilao leilao = new Leilao("Bicicreta hehehe");
+		Leilao leilao = new CriadorDeLeilao()
+				.para("video game")
+				.lance(joao, 1000)
+				.constroi();
 		
-		leilao.propoe(new Lance(new Usuario("Penelope charmosa"), 430));
-		
-		Avaliador avaliador = new Avaliador();
 		avaliador.avalia(leilao);
 		
-		assertEquals(430, avaliador.getMaiorLance(),0.00001);
-		assertEquals(430, avaliador.getMenorLance(),0.00001);
+		assertEquals(1000, avaliador.getMaiorLance(),0.00001);
+		assertEquals(1000, avaliador.getMenorLance(),0.00001);
 	}
 	
 	@Test
@@ -64,7 +81,6 @@ public class AvaliadorTest {
 		leilao.propoe(new Lance(new Usuario("Djalminha"), 630));
 		leilao.propoe(new Lance(new Usuario("Rivaldo"), 230));
 		
-		Avaliador avaliador = new Avaliador();
 		avaliador.avalia(leilao);
 		
 		assertEquals(700, avaliador.getMaiorLance(),0.00001);
@@ -80,7 +96,6 @@ public class AvaliadorTest {
 		leilao.propoe(new Lance(new Usuario("Ursinho carinhoso verde"), 200));
 		leilao.propoe(new Lance(new Usuario("Ursinho carinhoso amarelo"), 100));
 		
-		Avaliador avaliador = new Avaliador();
 		avaliador.avalia(leilao);
 		
 		assertEquals(400, avaliador.getMaiorLance(),0.00001);
@@ -89,21 +104,20 @@ public class AvaliadorTest {
 	
 	@Test
 	public void validaLeilaoComCincoLancesDeveEncontrarOsTresMaiores() {
-		Leilao leilao = new Leilao("Ferrari");
+		Leilao leilao = new CriadorDeLeilao()
+				.para("Video game")
+				.lance(joao, 100)
+				.lance(maria, 200)
+				.lance(jose, 300)
+				.lance(maria, 400)
+				.constroi();
 		
-		leilao.propoe(new Lance(new Usuario("Neymar"), 300));
-		leilao.propoe(new Lance(new Usuario("Pelé"), 400));
-		leilao.propoe(new Lance(new Usuario("Rincon"), 200));
-		leilao.propoe(new Lance(new Usuario("Jair"), 500));
-		leilao.propoe(new Lance(new Usuario("Gilson"), 600));
-		
-		Avaliador avaliador = new Avaliador();
 		avaliador.avalia(leilao);
 		
 		assertEquals(3, avaliador.getTresMaiores().size());
-		assertEquals(avaliador.getTresMaiores().get(0).getValor(), 600,0.00001);
-		assertEquals(avaliador.getTresMaiores().get(1).getValor(), 500,0.00001);
-		assertEquals(avaliador.getTresMaiores().get(2).getValor(), 400,0.00001);
+		assertEquals(avaliador.getTresMaiores().get(0).getValor(), 400,0.00001);
+		assertEquals(avaliador.getTresMaiores().get(1).getValor(), 300,0.00001);
+		assertEquals(avaliador.getTresMaiores().get(2).getValor(), 200,0.00001);
 	}
 	
 	@Test
@@ -113,7 +127,6 @@ public class AvaliadorTest {
 		leilao.propoe(new Lance(new Usuario("José"), 200));
 		leilao.propoe(new Lance(new Usuario("João"), 300));
 		
-		Avaliador avaliador = new Avaliador();
 		avaliador.avalia(leilao);
 		
 		assertEquals(2, avaliador.getTresMaiores().size());
@@ -125,7 +138,6 @@ public class AvaliadorTest {
 	public void validaLeilaoSemLanceDeveRetornarListaVazia() {
 		Leilao leilao = new Leilao("Açúcar");
 		
-		Avaliador avaliador = new Avaliador();
 		avaliador.avalia(leilao);
 		
 		assertEquals(0, avaliador.getTresMaiores().size());

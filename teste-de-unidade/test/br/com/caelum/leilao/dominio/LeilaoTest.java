@@ -2,16 +2,45 @@ package br.com.caelum.leilao.dominio;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class LeilaoTest {
 	
+	private Usuario steveJobs;
+	private Usuario billGates;
+	
+	@Before
+	public void setUp() {
+		System.out.println("before");
+		this.steveJobs = new Usuario("Steve Jobs");
+		this.billGates = new Usuario("Bill Gates");
+	}
+	
+	@After
+	public void depois() {
+		System.out.println("after");
+	}
+	
+	@BeforeClass
+	public static void testandoBeforeClass() {
+		System.out.println("Before class");
+	}
+	
+	@AfterClass
+	public static void testandoAfterClass() {
+		System.out.println("after class");
+	}
+
 	@Test
 	public void naoDeveAceitarDoisLancesEmSequenciaDadosPeloMesmoUsuario() {
-		Leilao leilao = new Leilao("TV");
-		
-		leilao.propoe(new Lance(new Usuario("Bill gates"), 200));
-		leilao.propoe(new Lance(new Usuario("Bill gates"), 300));
+		Leilao leilao = new CriadorDeLeilao().para("TV")
+				.lance(new Usuario("Steve Jobs"), 200)
+				.lance(new Usuario("Steve Jobs"), 300)
+				.constroi();
 		
 		assertEquals(1, leilao.getLances().size());
 		assertEquals(200, leilao.getLances().get(0).getValor(),0.00001);
@@ -19,19 +48,19 @@ public class LeilaoTest {
 	
 	@Test
 	public void oMesmoUsuarioNaoPodeDarMaisDoQueCincoLances() {
-		Leilao leilao = new Leilao("Bola");
-		
-		leilao.propoe(new Lance(new Usuario("B1"),200));
-		leilao.propoe(new Lance(new Usuario("B2"),300));
-		leilao.propoe(new Lance(new Usuario("B1"),400));
-		leilao.propoe(new Lance(new Usuario("B2"),500));
-		leilao.propoe(new Lance(new Usuario("B1"),600));
-		leilao.propoe(new Lance(new Usuario("B2"),700));
-		leilao.propoe(new Lance(new Usuario("B1"),800));
-		leilao.propoe(new Lance(new Usuario("B2"),900));
-		leilao.propoe(new Lance(new Usuario("B1"),1000));
-		leilao.propoe(new Lance(new Usuario("B2"),1100));
-		leilao.propoe(new Lance(new Usuario("B1"),1200));
+		Leilao leilao = new CriadorDeLeilao().para("TV")
+				.lance(steveJobs, 200)
+				.lance(billGates, 300)
+				.lance(steveJobs, 400)
+                .lance(billGates, 500)
+                .lance(steveJobs, 600)
+                .lance(billGates, 700)
+                .lance(steveJobs, 800)
+                .lance(billGates, 900)
+                .lance(steveJobs, 1000)
+                .lance(billGates, 1100)
+                .lance(steveJobs, 1200)
+                .constroi();
 		
 		assertEquals(10, leilao.getLances().size());
 		assertEquals(200, leilao.getLances().get(0).getValor(),0.00001);
@@ -50,21 +79,21 @@ public class LeilaoTest {
 	public void deveDobrarOLance() {
 		Leilao leilao = new Leilao("TV");
 		
-		leilao.dobraLance(new Usuario("José"));
+		leilao.dobraLance(steveJobs);
 		
 		assertEquals(0, leilao.getLances().size());
 		
-		leilao.propoe(new Lance(new Usuario("José"), 200));
-		leilao.propoe(new Lance(new Usuario("João"), 300));
-		leilao.dobraLance(new Usuario("José"));
-		leilao.propoe(new Lance(new Usuario("João"), 500));
-		leilao.propoe(new Lance(new Usuario("José"), 600));
-		leilao.propoe(new Lance(new Usuario("João"), 700));
-		leilao.propoe(new Lance(new Usuario("José"), 800));
-		leilao.propoe(new Lance(new Usuario("João"), 900));
-		leilao.propoe(new Lance(new Usuario("José"), 1000));
-		leilao.propoe(new Lance(new Usuario("João"), 1100));
-		leilao.propoe(new Lance(new Usuario("José"), 1200));
+		leilao.propoe(new Lance(steveJobs, 200));
+		leilao.propoe(new Lance(billGates, 300));
+		leilao.dobraLance(steveJobs);
+		leilao.propoe(new Lance(billGates, 500));
+		leilao.propoe(new Lance(steveJobs, 600));
+		leilao.propoe(new Lance(billGates, 700));
+		leilao.propoe(new Lance(steveJobs, 800));
+		leilao.propoe(new Lance(billGates, 900));
+		leilao.propoe(new Lance(steveJobs, 1000));
+		leilao.propoe(new Lance(billGates, 1100));
+		leilao.propoe(new Lance(steveJobs, 1200));
 		
 		assertEquals(10, leilao.getLances().size());
 		assertEquals(200, leilao.getLances().get(0).getValor(),0.00001);
