@@ -1,10 +1,15 @@
 package br.com.caelum.leilao.dominio;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.*;
 
 public class AvaliadorTest {
 	
@@ -39,8 +44,8 @@ public class AvaliadorTest {
 		
 		avaliador.avalia(leilao);
 		
-		assertEquals(400, avaliador.getMaiorLance(),0.00001);
-		assertEquals(250, avaliador.getMenorLance(),0.00001);
+		assertThat(avaliador.getMaiorLance(), equalTo(400.0));
+		assertThat(avaliador.getMenorLance(), equalTo(250.0));
 	}
 	
 	@Test
@@ -53,8 +58,7 @@ public class AvaliadorTest {
 		leilao.propoe(lance2);
 		leilao.propoe(lance3);
 		
-		
-		assertEquals(300, avaliador.getValorMedio(leilao),0.00001);
+		assertThat(avaliador.getValorMedio(leilao), equalTo(300.0));
 	}
 	
 	@Test
@@ -114,10 +118,14 @@ public class AvaliadorTest {
 		
 		avaliador.avalia(leilao);
 		
-		assertEquals(3, avaliador.getTresMaiores().size());
-		assertEquals(avaliador.getTresMaiores().get(0).getValor(), 400,0.00001);
-		assertEquals(avaliador.getTresMaiores().get(1).getValor(), 300,0.00001);
-		assertEquals(avaliador.getTresMaiores().get(2).getValor(), 200,0.00001);
+		List<Lance> tresMaiores = avaliador.getTresMaiores();
+		assertEquals(3, tresMaiores.size());
+
+		assertThat(tresMaiores, hasItems(
+				new Lance(maria, 400),
+				new Lance(jose, 300),
+				new Lance(maria, 200)
+		));
 	}
 	
 	@Test
@@ -134,13 +142,19 @@ public class AvaliadorTest {
 		assertEquals(200, avaliador.getTresMaiores().get(1).getValor(),0.00001);
 	}
 	
-	@Test
+	@Test(expected=RuntimeException.class)
 	public void validaLeilaoSemLanceDeveRetornarListaVazia() {
 		Leilao leilao = new Leilao("Açúcar");
 		
 		avaliador.avalia(leilao);
 		
 		assertEquals(0, avaliador.getTresMaiores().size());
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void leilaoSemLanceDeveSoltaException() {
+		Avaliador avaliador = new Avaliador();
+		avaliador.avalia(new Leilao("meia"));
 	}
 
 }
